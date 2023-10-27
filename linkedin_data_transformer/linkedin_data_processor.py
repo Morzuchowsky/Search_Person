@@ -5,33 +5,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def fetch_linkedin_profile(linkedin_profile_url: str) -> dict:
+def scrape_linkedin_profile(linkedin_profile_url: str) -> dict:
     """Fetch information from a LinkedIn profile using the Proxycurl API."""
     api_endpoint = "https://nubela.co/proxycurl/api/v2/linkedin"
-    headers = {"Authorization": f'Bearer {os.environ.get("PROXYCURL_API_KEY")}'}
+    header_dic = {"Authorization": f'Bearer {os.environ.get("PROXYCURL_API_KEY")}'}
 
     response = requests.get(
-        api_endpoint, params={"url": linkedin_profile_url}, headers=headers
+        api_endpoint, params={"url": linkedin_profile_url}, headers=header_dic
     )
-    response.raise_for_status()
-    return response.json()
-
-
-def clean_linkedin_data(data: dict) -> dict:
-    """Clean and filter specific fields from LinkedIn profile data."""
+    data = response.json()
     data = {
         k: v
         for k, v in data.items()
-        if v not in ([], "", None) and k not in ["people_also_viewed", "certifications"]
+        if v not in ([], "", "", None)
+           and k not in ["people_also_viewed", "certifications"]
     }
-
     if data.get("groups"):
-        for group_dict in data["groups"]:
-            group_dict.pop("profile_pic_url", None)
+        for group_dict in data.get("groups"):
+            group_dict.pop("profile_pic_url")
+
     return data
-
-
-def scrape_linkedin_profile(linkedin_profile_url: str) -> dict:
-    """Scrape and clean information from a LinkedIn profile."""
-    raw_data = fetch_linkedin_profile(linkedin_profile_url)
-    return clean_linkedin_data(raw_data)

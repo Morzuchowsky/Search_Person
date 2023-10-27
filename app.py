@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+
 from main import main
 
 app = Flask(__name__)
@@ -13,12 +14,14 @@ def index():
 def process():
     name = request.form["name"]
     person_info, profile_pic_url = main(name=name)
+
     return jsonify(
         {
             "summary": person_info.summary,
             "interests": person_info.topics_of_interest,
             "facts": person_info.facts,
-            "picture_url": profile_pic_url
+            "ice_breakers": person_info.ice_breakers,
+            "picture_url": profile_pic_url,
         }
     )
 
